@@ -231,61 +231,44 @@ class Downloader():
             return True
         else:
             print(f'Файл "{concat_name}" уже существует.')
-            return True
+            return TrueL
 
 
-def webinar_format(les_url, login, password):
+def colecting_info(les_url, login, password):
     downloader = Downloader(les_url, login, password)
     downloader.auth(login, password)
     folder_name = downloader.define_folder_name(les_url)
     regex_folder_name = downloader.regex_filter(folder_name)
     folder_exists = downloader.folder_exists(les_url, regex_folder_name)
     les_amount = downloader.les_amount(les_url)
-    available_les_count = downloader.available_les_count(les_url)
-    i = 0
-    while i != available_les_count:
-        next_les_link = downloader.next_les_link_generate(les_url, i)
-        file_link = downloader.file_link(next_les_link)
-        file_name = downloader.concat_name(next_les_link)
-        regex_file = downloader.regex_filter(file_name)
-        file_exists = downloader.exists_check(regex_file , regex_folder_name)
-        web_exists = downloader.exists_check_web(file_link, next_les_link, regex_folder_name, i)
-        content = downloader.contents_table_add(regex_folder_name, regex_file_name)
-        download = downloader.file_download(regex_folder_name, regex_file , file_link, file_exists, web_exists)
-        size_check = downloader.check_file_size(file_link, regex_folder_name, regex_file, web_exists)
-        i += 1
-        continue
+    return les_amount
 
-
-def video_format(les_url, login, password):
-    # Не проверяет кол-во доступных уроков
-
-    downloader = Downloader(les_url, login, password)
-    downloader.auth(login, password)
-    folder_name = downloader.define_folder_name(les_url)
-    regex_folder_name = downloader.regex_filter(folder_name)
-    folder_exists = downloader.folder_exists(les_url, regex_folder_name)
-    les_amount = downloader.les_amount(les_url)
-    i = 0
-    while i != les_amount:
-        next_les_link = downloader.next_les_link_generate(les_url, i)
-        file_link = downloader.file_link(next_les_link)
-        file_name = downloader.concat_name(next_les_link)
-        regex_file_name = downloader.regex_filter(file_name)
-        file_exists = downloader.exists_check(regex_file_name, regex_folder_name)
-        web_exists = downloader.exists_check_web(file_link, next_les_link, regex_folder_name, i)
-        content = downloader.contents_table_add(regex_folder_name, regex_file_name)
-        download = downloader.file_download(regex_folder_name, regex_file_name, file_link, file_exists, web_exists)
-        size_check = downloader.check_file_size(file_link, regex_folder_name, regex_file_name, web_exists)
-        i += 1
-        continue
+def start_load(les_url, i):
+    next_les_link = downloader.next_les_link_generate(les_url, i)
+    file_link = downloader.file_link(next_les_link)
+    file_name = downloader.concat_name(next_les_link)
+    regex_file = downloader.regex_filter(file_name)
+    file_exists = downloader.exists_check(regex_file , regex_folder_name)
+    web_exists = downloader.exists_check_web(file_link, next_les_link, regex_folder_name, i)
+    content = downloader.contents_table_add(regex_folder_name, regex_file_name)
+    download = downloader.file_download(regex_folder_name, regex_file , file_link, file_exists, web_exists)
+    size_check = downloader.check_file_size(file_link, regex_folder_name, regex_file, web_exists)
 
 
 def start(les_url, les_type, login, password):
     if les_type == 1:
-        video_format(les_url, login, password)
+        iter = colecting_info(les_url, login, password)
+        i = 0
+        while i != iter:
+            start_load(les_url, i)
+            i += 1
     elif les_type == 2:
-        webinar_format(les_url, login, password)
+        available_les_count = downloader.available_les_count(les_url)
+        colecting_info(les_url, login, password)
+        i = 0
+        while i != available_les_count:
+            start_load(les_url, i)
+            i += 1
     else:
         print('Выберите вариант из списка доступных (1/2)')
 
